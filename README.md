@@ -1,5 +1,5 @@
-# School-management-system
-# Work in progress
+# School-management-system, Work in progress
+
 
 
 # Student class
