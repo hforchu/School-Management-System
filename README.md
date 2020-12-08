@@ -226,3 +226,35 @@ class studentListIterator<String> implements Iterator<Student> {
 		throw new NoSuchElementException();
 	}
 }
+
+# Test Class, work in progress
+
+import java.util.ArrayList;
+
+public class School_management_system {
+
+	static StudentList list = new StudentList();
+	public ArrayList<String> usedIDNumbers;
+	public static final int feePerCourse = 600;
+	public static final int maxCourses = 5;
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		Student joe = new Student("Joe Harris", 4, 5);
+		list.add(joe);
+		list.addStudent("Chris Paul", 1, 5);
+		list.addStudent("Suzie Sue", 3, 3);
+		joe.studentInfo();
+
+		for (Student st : list) {
+			st.studentInfo();
+		}
+
+		System.out.println(list.getSize());
+		list.remove("Chris Paul");
+		System.out.println(list.getSize());
+	}
+}
