@@ -28,6 +28,14 @@ public class Student {
 		generateStudentIDNumber();
 	}
 
+	public Student(String name) {
+		this.name = name;
+		this.year = getYear();
+		this.numberOfCourses = getNumCourses();
+		list.addStudent(name, year, numberOfCourses);
+		generateStudentIDNumber();
+	}
+
 	/**
 	 * creates a random student ID number of six digits for a new student
 	 * 
@@ -42,7 +50,7 @@ public class Student {
 		if (list.usedIDNumbers.contains(studentIDNumber)) {
 			generateStudentIDNumber();
 		} else {
-			list.usedIDNumbers.add(studentIDNumber);
+			list.addStudentIDNumber(studentIDNumber);
 		}
 		return studentIDNumber;
 	}
@@ -55,7 +63,7 @@ public class Student {
 	 */
 	public int calulateTuition(int numberofCourses) {
 
-		tuitionBalance = numberofCourses * Database.feePerCourse;
+		tuitionBalance = numberofCourses * School_management_system.feePerCourse;
 		return tuitionBalance;
 	}
 
@@ -132,17 +140,17 @@ public class Student {
 }
 
 
+
 # StudentList class
-# class is iterable
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class StudentList implements Iterable<Student> {
+public class StudentList {
 
 	private ArrayList<String> list;
 	public ArrayList<String> usedIDNumbers;
+	int index;
 
 	/**
 	 * contructor for building the list of students in the school
@@ -193,50 +201,40 @@ public class StudentList implements Iterable<Student> {
 		return list.size();
 	}
 
-	@Override
-	public Iterator<Student> iterator() {
+	/**
+	 * 
+	 * @return
+	 */
+	private boolean hasNext() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-}
-
-class studentListIterator<String> implements Iterator<Student> {
-
-	StudentList list = new StudentList();
-	int index;
-
-	public studentListIterator(int position) {
-		if (position < 0 || position > list.getSize())
-			throw new IndexOutOfBoundsException();
-		index = position;
+		return index < list.size();
 	}
 
-	@Override
-	public boolean hasNext() {
-		// TODO Auto-generated method stub
-		return index < list.getSize();
-	}
-
-	@Override
+	/**
+	 * 
+	 * @return
+	 */
 	public Student next() {
 		// TODO Auto-generated method stub
+		Student next;
 		if (hasNext()) {
+			next = new Student(list.get(index));
 			index++;
+			return next;
 		}
 		throw new NoSuchElementException();
 	}
+
 }
 
 # Test Class, work in progress
 
-import java.util.ArrayList;
-
 public class School_management_system {
 
 	static StudentList list = new StudentList();
-	public ArrayList<String> usedIDNumbers;
 	public static final int feePerCourse = 600;
 	public static final int maxCourses = 5;
+
 	/**
 	 * 
 	 * @param args
@@ -249,10 +247,10 @@ public class School_management_system {
 		list.addStudent("Suzie Sue", 3, 3);
 		joe.studentInfo();
 
-		for (Student st : list) {
-			st.studentInfo();
+		for (int i = 0; i < list.getSize(); i++) {
+			list.next().studentInfo();
 		}
-
+		
 		System.out.println(list.getSize());
 		list.remove("Chris Paul");
 		System.out.println(list.getSize());
