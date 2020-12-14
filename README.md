@@ -1,6 +1,4 @@
 # School-management-system
-# Work in progress
-
 
 #
 # Student class
@@ -12,7 +10,7 @@ public class Student {
 
 	private String name;
 	private int year;
-	private String studentIDNumber = "";
+	private String studentIDNumber = ""; // using a string because I am concatenating random ints into the ID
 	private int numberOfCourses;
 	private int tuitionBalance;
 	private StudentList list = new StudentList();
@@ -27,21 +25,26 @@ public class Student {
 	public Student(String name, int year, int numberOfCourses) {
 		this.name = name;
 		this.year = year;
-		this.numberOfCourses = numberOfCourses;
-		list.add(name, year, numberOfCourses);
+		if (numberOfCourses > School_management_system.maxCourses)
+			this.numberOfCourses = School_management_system.maxCourses;
+		else
+			this.numberOfCourses = numberOfCourses;
 		generateStudentIDNumber();
 	}
 
 	/**
+	 * constructor used in next method in StudentList to make everyone a student
 	 * 
 	 * @param name
+	 * @param year
+	 * @param numCourses
+	 * @param IDNumber
 	 */
-	public Student(String name) {
+	public Student(String name, int year, int numCourses, String IDNumber) {
 		this.name = name;
-		this.year = getYear();
-		this.numberOfCourses = getNumCourses();
-		list.add(name, year, numberOfCourses);
-		studentIDNumber = this.getIDNumber();
+		this.year = year;
+		this.numberOfCourses = numCourses;
+		studentIDNumber = IDNumber;
 	}
 
 	/**
@@ -57,9 +60,8 @@ public class Student {
 		}
 		if (list.usedIDNumbers.contains(studentIDNumber)) {
 			generateStudentIDNumber();
-		} else {
-			list.addStudentIDNumber(studentIDNumber);
 		}
+		list.addStudentIDNumber(studentIDNumber);
 		return studentIDNumber;
 	}
 
@@ -78,7 +80,7 @@ public class Student {
 	/**
 	 * adjusts the balance of the student's tuition
 	 * 
-	 * @param amountPaying,
+	 * @param amountPaying, the money to be deducted from the current balance
 	 */
 	public void payTuition(int amountPaying) {
 
@@ -126,6 +128,11 @@ public class Student {
 		return year;
 	}
 
+	/**
+	 * returns the student's ID number
+	 * 
+	 * @return
+	 */
 	public String getIDNumber() {
 		return studentIDNumber;
 	}
@@ -136,19 +143,20 @@ public class Student {
 	public void studentInfo() {
 
 		if (getYear() == 1) {
-			System.out.println(this.getName() + ": Student is in their first year, and is taking " + getNumCourses()
+			System.out.println(this.getName() + " is in their first year, and is taking " + getNumCourses()
 					+ " courses. Student ID is " + this.getIDNumber());
 		} else if (getYear() == 2) {
-			System.out.println(this.getName() + ": Student is in their second year, and is taking " + getNumCourses()
+			System.out.println(this.getName() + " is in their second year, and is taking " + getNumCourses()
 					+ " courses. Student ID is " + this.getIDNumber());
 		} else if (getYear() == 3) {
-			System.out.println(this.getName() + ": Student is in their third year, and is taking " + getNumCourses()
+			System.out.println(this.getName() + " is in their third year, and is taking " + getNumCourses()
 					+ " courses. Student ID is " + this.getIDNumber());
 		} else {
 			System.out.println(this.getName() + " is in their final year, and is taking " + getNumCourses()
 					+ " courses. Student ID is " + this.getIDNumber());
 		}
 	}
+	
 }
 
 
@@ -164,7 +172,9 @@ public class StudentList {
 
 	private ArrayList<String> list;
 	public ArrayList<String> usedIDNumbers;
-	int index;
+	private int index, i;
+	private ArrayList<String> stringItems = new ArrayList<>(); // used to store the names and Student ID numbers of everyone who is added to the list
+	private ArrayList<Integer> intItems = new ArrayList<>(); // used to store the year and number of courses to everyone who is added to the list
 
 	/**
 	 * constructor for building the list of students in the school
@@ -186,7 +196,8 @@ public class StudentList {
 	 */
 	public void add(String name, int year, int numCourses) {
 
-		list.add(name);
+		Student newStudent = new Student(name, year, numCourses);
+		addStudent(newStudent);
 	}
 
 	/**
@@ -196,7 +207,13 @@ public class StudentList {
 	 */
 	public void addStudent(Student name) {
 
-		add(name.getName(), name.getYear(), name.getNumCourses());
+		if (!list.contains(name.getName())) {
+			list.add(name.getName());
+			stringItems.add(name.getName());
+			intItems.add(name.getYear());
+			intItems.add(name.getNumCourses());
+			stringItems.add(name.getIDNumber());
+		}
 	}
 
 	/**
@@ -208,6 +225,11 @@ public class StudentList {
 	public void remove(String name) {
 
 		list.remove(name);
+		stringItems.remove(stringItems.indexOf(name) + 1);
+		intItems.remove(stringItems.indexOf(name) + 1);
+		intItems.remove(stringItems.indexOf(name));
+		stringItems.remove(name);
+		index = i = 0;
 	}
 
 	/**
@@ -216,11 +238,17 @@ public class StudentList {
 	 * @param name
 	 */
 	public void removeStudent(Student name) {
+
 		list.remove(name.getName());
+		stringItems.remove(stringItems.indexOf(name.getName()) + 1);
+		intItems.remove(stringItems.indexOf(name.getName()) + 1);
+		intItems.remove(stringItems.indexOf(name.getName()));
+		stringItems.remove(name.getName());
+		index = i = 0;
 	}
 
 	/**
-	 * adds the used UD Numbers to a list so no two people have the same ID number
+	 * adds the used ID Numbers to a list so no two people have the same ID number
 	 * 
 	 * @param studentIDNumber
 	 */
@@ -254,8 +282,9 @@ public class StudentList {
 
 		Student next;
 		if (hasNext()) {
-			next = new Student(list.get(index));
+			next = new Student(stringItems.get(i), intItems.get(i), intItems.get(i + 1), stringItems.get(i + 1));
 			index++;
+			i += 2;
 			return next;
 		}
 		throw new NoSuchElementException();
@@ -269,8 +298,10 @@ public class StudentList {
 			System.out.println(list.get(i));
 		}
 	}
-
+	
 }
+
+
 
 
 # Test Class
@@ -290,10 +321,13 @@ public class School_management_system {
 
 		Student joe = new Student("Joe Harris", 4, 5);
 		Student tomas = new Student("Tomas Jones", 1, 4);
+		Student luke = new Student("Luke Jones", 2, 4);
 		list.addStudent(joe);
-		list.add("Chris Paul", 1, 5);
+		list.add("Chris Paul", 1, 6);
+		list.addStudent(luke);
 		list.add("Suzie Sue", 3, 3);
 		list.addStudent(tomas);
+		list.add("Michael Mayer", 4, 2);
 
 		list.listStudents();
 
@@ -301,9 +335,6 @@ public class School_management_system {
 		for (int i = 0; i < list.getSize(); i++) {
 			list.next().studentInfo();
 		}
-
-		System.out.println();
-		tomas.studentInfo();
 
 		System.out.println("\nJoe's tuition is $" + joe.calulateTuition(joe.getNumCourses()));
 		joe.payTuition(2000);
@@ -313,6 +344,12 @@ public class School_management_system {
 		list.remove("Chris Paul");
 		list.removeStudent(joe);
 		System.out.println(list.getSize());
+		list.listStudents();
+
+		System.out.println("\n");
+		for (int i = 0; i < list.getSize(); i++) {
+			list.next().studentInfo();
+		}
+
 	}
 }
-
